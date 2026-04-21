@@ -1,0 +1,85 @@
+/* Wujin Sushi Admin Styles */
+
+/* Login Page */
+.login h1 a {
+    background-image: url('../assets/images/logo.png') !important;
+    background-size: contain !important;
+    width: 100px !important;
+    height: 100px !important;
+}
+
+/* Admin Bar */
+#wpadminbar {
+    background-color: #001973 !important;
+}
+
+#wpadminbar .ab-top-menu > li:hover > a,
+#wpadminbar .ab-top-menu > li:hover > .ab-item,
+#wpadminbar .ab-top-menu > li > a:hover,
+#wpadminbar .ab-top-menu > li > .ab-item:hover,
+#wpadminbar .ab-top-menu > li.current > a,
+#wpadminbar .ab-top-menu > li.current > .ab-item {
+    background-color: #ffc859 !important;
+    color: #001973 !important;
+}
+
+/* Admin Menu */
+#adminmenu {
+    background-color: #001973 !important;
+}
+
+#adminmenu li.menu-top:hover,
+#adminmenu li.opensub > a.menu-top,
+#adminmenu li > a.menu-top:focus,
+#adminmenu li.wp-has-current-submenu a.wp-has-current-submenu,
+#adminmenu li.current a.menu-top {
+    background-color: #ffc859 !important;
+    color: #001973 !important;
+}
+
+#adminmenu .wp-submenu a:hover,
+#adminmenu .wp-submenu a:focus,
+#adminmenu .wp-submenu li.current a {
+    background-color: #ffc859 !important;
+    color: #001973 !important;
+}
+
+/* Buttons */
+.wp-core-ui .button-primary {
+    background-color: #001973 !important;
+    border-color: #001973 !important;
+    color: #ffffff !important;
+}
+
+.wp-core-ui .button-primary:hover,
+.wp-core-ui .button-primary:focus {
+    background-color: #ffc859 !important;
+    border-color: #ffc859 !important;
+    color: #001973 !important;
+}
+
+/* Editor Styles */
+#wp-content-editor-tools {
+    background-color: #001973 !important;
+}
+
+#wp-content-editor-tools .wp-switch-editor.switch-tmce {
+    background-color: #ffc859 !important;
+    color: #001973 !important;
+}
+
+#wp-content-editor-tools .wp-switch-editor.switch-html {
+    background-color: #ffffff !important;
+    color: #001973 !important;
+}
+
+/* Custom Post Type Icons */
+#menu-posts-menu_item .wp-menu-image:before {
+    content: "\f56c" !important; /* Dashicons food icon */
+    color: #ffc859 !important;
+}
+
+#menu-posts-menu_item:hover .wp-menu-image:before,
+#menu-posts-menu_item.wp-has-current-submenu .wp-menu-image:before {
+    color: #ffffff !important;
+}
