@@ -398,6 +398,51 @@ select {
     align-content: start;
 }
 
+.image-anchor {
+    display: block;
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--ws-radius-md);
+    background: linear-gradient(135deg, rgba(16, 42, 67, 0.1), rgba(215, 164, 65, 0.18));
+}
+
+.image-anchor::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, transparent 45%, rgba(8, 27, 44, 0.18));
+    opacity: 0;
+    transition: opacity var(--ws-transition);
+}
+
+.image-anchor:hover::after,
+.image-anchor:focus-visible::after {
+    opacity: 1;
+}
+
+.image-anchor-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 320ms ease;
+}
+
+.image-anchor:hover .image-anchor-img,
+.image-anchor:focus-visible .image-anchor-img {
+    transform: scale(1.035);
+}
+
+.hero-photo {
+    aspect-ratio: 4 / 5;
+    min-height: 320px;
+}
+
+.about-photo {
+    aspect-ratio: 4 / 3;
+    margin-bottom: 1rem;
+}
+
 .hero-panel-card {
     padding: 1rem 1.1rem;
     border-radius: var(--ws-radius-md);
@@ -672,6 +717,33 @@ select {
 
 .info-grid {
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+}
+
+.gallery-card {
+    aspect-ratio: 1 / 1;
+}
+
+.gallery-caption {
+    position: absolute;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 1;
+    display: inline-flex;
+    width: fit-content;
+    max-width: calc(100% - 2rem);
+    padding: 0.4rem 0.7rem;
+    border-radius: 999px;
+    background: rgba(8, 27, 44, 0.84);
+    color: var(--ws-white);
+    font-size: 0.82rem;
+    font-weight: 700;
 }
 
 .info-card {

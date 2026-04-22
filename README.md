@@ -20,6 +20,7 @@ phpMyAdmin is available at `http://localhost:8089`
 ## What is editable from WordPress
 
 - Homepage hero text, contact details, hours, CTA links: `Appearance > Customize > Restaurant Settings`
+- Homepage hero photo, about photo, and gallery photos: `Appearance > Customize > Restaurant Settings`
 - Menu categories: `Menu Items > Menu Categories`
 - Menu dishes and pricing: `Menu Items`
 - Footer and primary navigation: `Appearance > Menus`
@@ -28,9 +29,10 @@ phpMyAdmin is available at `http://localhost:8089`
 ## Suggested next steps after activation
 
 1. Replace the default logo in `wujin-sushi-theme/assets/images/logo.png` or set a custom logo in the Customizer
-2. Create real `Menu Item` entries with featured images, prices, badges, and categories
-3. Point the reservation and ordering URLs to your real booking and checkout pages
-4. Install WooCommerce if you want cart and checkout functionality
+2. Upload your own homepage photos in `Appearance > Customize > Restaurant Settings`
+3. Create real `Menu Item` entries with featured images, prices, badges, and categories
+4. Point the reservation and ordering URLs to your real booking and checkout pages
+5. Install WooCommerce if you want cart and checkout functionality
 
 ## Notes
 

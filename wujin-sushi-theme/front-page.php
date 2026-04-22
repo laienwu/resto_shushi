@@ -18,6 +18,9 @@ $wujin_sushi_phone             = wujin_sushi_get_theme_option('phone', '09 54 97
 $wujin_sushi_email             = wujin_sushi_get_theme_option('email', 'bonjour@wujinsushi.fr');
 $wujin_sushi_order_url         = wujin_sushi_get_theme_option('order_url', home_url('/#menu'));
 $wujin_sushi_reservation_url   = wujin_sushi_get_theme_option('reservation_url', home_url('/#contact'));
+$wujin_sushi_hero_image_id     = wujin_sushi_get_theme_image_id('hero_image');
+$wujin_sushi_about_image_id    = wujin_sushi_get_theme_image_id('about_image');
+$wujin_sushi_gallery_image_ids = wujin_sushi_get_gallery_image_ids();
 $wujin_sushi_front_page_id     = get_queried_object_id();
 $wujin_sushi_front_page_markup = '';
 $wujin_sushi_menu_terms        = get_terms(
@@ -95,6 +98,12 @@ $wujin_sushi_latest_posts = new WP_Query(
             </div>
 
             <aside class="hero-panel" aria-label="<?php esc_attr_e('Restaurant information', 'wujin-sushi'); ?>">
+                <?php if ($wujin_sushi_hero_image_id) : ?>
+                    <a class="image-anchor hero-photo" href="<?php echo esc_url(wp_get_attachment_image_url($wujin_sushi_hero_image_id, 'full')); ?>">
+                        <?php echo wp_get_attachment_image($wujin_sushi_hero_image_id, 'large', false, array('class' => 'image-anchor-img')); ?>
+                    </a>
+                <?php endif; ?>
+
                 <div class="hero-panel-card">
                     <h2><?php esc_html_e('Adresse', 'wujin-sushi'); ?></h2>
                     <p><?php echo esc_html($wujin_sushi_address); ?></p>
@@ -247,6 +256,12 @@ $wujin_sushi_latest_posts = new WP_Query(
                     </div>
 
                     <aside class="sidebar">
+                        <?php if ($wujin_sushi_about_image_id) : ?>
+                            <a class="image-anchor about-photo" href="<?php echo esc_url(wp_get_attachment_image_url($wujin_sushi_about_image_id, 'full')); ?>">
+                                <?php echo wp_get_attachment_image($wujin_sushi_about_image_id, 'large', false, array('class' => 'image-anchor-img')); ?>
+                            </a>
+                        <?php endif; ?>
+
                         <div class="widget">
                             <h3 class="widget-title"><?php esc_html_e('Coordonnees', 'wujin-sushi'); ?></h3>
                             <ul class="footer-list">
@@ -259,6 +274,32 @@ $wujin_sushi_latest_posts = new WP_Query(
                 </div>
             </div>
         </section>
+
+        <?php if (! empty($wujin_sushi_gallery_image_ids)) : ?>
+            <section class="section" id="gallery">
+                <div class="section-card">
+                    <div class="section-head">
+                        <div>
+                            <p class="eyebrow"><?php esc_html_e('Photos', 'wujin-sushi'); ?></p>
+                            <h2><?php esc_html_e('Galerie du restaurant', 'wujin-sushi'); ?></h2>
+                            <p><?php esc_html_e('Ces images sont des emplacements administrables depuis Appearance > Customize > Restaurant Settings.', 'wujin-sushi'); ?></p>
+                        </div>
+                    </div>
+
+                    <div class="gallery-grid">
+                        <?php foreach ($wujin_sushi_gallery_image_ids as $wujin_sushi_gallery_image_id) : ?>
+                            <?php $wujin_sushi_gallery_caption = wp_get_attachment_caption($wujin_sushi_gallery_image_id); ?>
+                            <a class="gallery-card image-anchor" href="<?php echo esc_url(wp_get_attachment_image_url($wujin_sushi_gallery_image_id, 'full')); ?>">
+                                <?php echo wp_get_attachment_image($wujin_sushi_gallery_image_id, 'large', false, array('class' => 'image-anchor-img')); ?>
+                                <?php if ($wujin_sushi_gallery_caption) : ?>
+                                    <span class="gallery-caption"><?php echo esc_html($wujin_sushi_gallery_caption); ?></span>
+                                <?php endif; ?>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </section>
+        <?php endif; ?>
 
         <?php if ($wujin_sushi_latest_posts->have_posts()) : ?>
             <section class="section" id="news">

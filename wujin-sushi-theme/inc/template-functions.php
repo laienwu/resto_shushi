@@ -104,6 +104,31 @@ function wujin_sushi_get_social_links() {
 }
 
 /**
+ * Returns an image attachment ID from a theme setting.
+ *
+ * @param string $setting Setting suffix.
+ * @return int
+ */
+function wujin_sushi_get_theme_image_id($setting) {
+    return absint(get_theme_mod('wujin_sushi_' . $setting, 0));
+}
+
+/**
+ * Returns configured homepage gallery image IDs.
+ *
+ * @return int[]
+ */
+function wujin_sushi_get_gallery_image_ids() {
+    $image_ids = array(
+        wujin_sushi_get_theme_image_id('gallery_image_1'),
+        wujin_sushi_get_theme_image_id('gallery_image_2'),
+        wujin_sushi_get_theme_image_id('gallery_image_3'),
+    );
+
+    return array_values(array_filter($image_ids));
+}
+
+/**
  * Returns the menu item price.
  *
  * @param int $post_id Optional post ID.
@@ -153,6 +178,10 @@ function wujin_sushi_primary_menu_fallback($args) {
         home_url('/') . '#contact' => esc_html__('Contact', 'wujin-sushi'),
         get_post_type_archive_link('menu_item') ?: home_url('/') . '#menu' => esc_html__('Menu complet', 'wujin-sushi'),
     );
+
+    if (! empty(wujin_sushi_get_gallery_image_ids())) {
+        $items[home_url('/') . '#gallery'] = esc_html__('Photos', 'wujin-sushi');
+    }
 
     echo '<ul id="primary-menu" class="menu">';
 

@@ -123,5 +123,52 @@ function wujin_sushi_customize_register($wp_customize) {
             )
         );
     }
+
+    $image_settings = array(
+        'hero_image' => array(
+            'label'       => esc_html__('Homepage hero photo', 'wujin-sushi'),
+            'description' => esc_html__('Large visual shown beside the homepage hero text.', 'wujin-sushi'),
+        ),
+        'about_image' => array(
+            'label'       => esc_html__('About section photo', 'wujin-sushi'),
+            'description' => esc_html__('Optional restaurant or team photo shown in the about section.', 'wujin-sushi'),
+        ),
+        'gallery_image_1' => array(
+            'label'       => esc_html__('Gallery image 1', 'wujin-sushi'),
+            'description' => esc_html__('Optional homepage gallery image.', 'wujin-sushi'),
+        ),
+        'gallery_image_2' => array(
+            'label'       => esc_html__('Gallery image 2', 'wujin-sushi'),
+            'description' => esc_html__('Optional homepage gallery image.', 'wujin-sushi'),
+        ),
+        'gallery_image_3' => array(
+            'label'       => esc_html__('Gallery image 3', 'wujin-sushi'),
+            'description' => esc_html__('Optional homepage gallery image.', 'wujin-sushi'),
+        ),
+    );
+
+    foreach ($image_settings as $setting_id => $config) {
+        $wp_customize->add_setting(
+            'wujin_sushi_' . $setting_id,
+            array(
+                'default'           => 0,
+                'sanitize_callback' => 'absint',
+                'transport'         => 'refresh',
+            )
+        );
+
+        $wp_customize->add_control(
+            new WP_Customize_Media_Control(
+                $wp_customize,
+                'wujin_sushi_' . $setting_id,
+                array(
+                    'section'     => 'wujin_sushi_restaurant',
+                    'label'       => $config['label'],
+                    'description' => $config['description'],
+                    'mime_type'   => 'image',
+                )
+            )
+        );
+    }
 }
 add_action('customize_register', 'wujin_sushi_customize_register');
