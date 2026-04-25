@@ -7,35 +7,38 @@
 
 get_header();
 
-$wujin_sushi_hero_heading      = wujin_sushi_get_theme_option('hero_heading', get_bloginfo('name'));
-$wujin_sushi_hero_subheading   = wujin_sushi_get_theme_option('hero_subheading', get_bloginfo('description'));
-$wujin_sushi_hero_description  = wujin_sushi_get_theme_option('hero_description');
-$wujin_sushi_announcement      = wujin_sushi_get_theme_option('announcement_text');
-$wujin_sushi_about_title       = wujin_sushi_get_theme_option('about_title');
-$wujin_sushi_about_text        = wujin_sushi_get_theme_option('about_text');
-$wujin_sushi_address           = wujin_sushi_get_theme_option('address', '15 Bd du Temple, 75003 Paris');
-$wujin_sushi_phone             = wujin_sushi_get_theme_option('phone', '09 54 97 63 96');
-$wujin_sushi_email             = wujin_sushi_get_theme_option('email', 'bonjour@wujinsushi.fr');
-$wujin_sushi_order_url         = wujin_sushi_get_theme_option('order_url', home_url('/#menu'));
-$wujin_sushi_reservation_url   = wujin_sushi_get_theme_option('reservation_url', home_url('/#contact'));
-$wujin_sushi_hero_image_id     = wujin_sushi_get_theme_image_id('hero_image');
-$wujin_sushi_about_image_id    = wujin_sushi_get_theme_image_id('about_image');
+$wujin_sushi_hero_heading     = wujin_sushi_get_theme_option('hero_heading', get_bloginfo('name'));
+$wujin_sushi_hero_subheading  = wujin_sushi_get_theme_option('hero_subheading', get_bloginfo('description'));
+$wujin_sushi_hero_description = wujin_sushi_get_theme_option('hero_description');
+$wujin_sushi_about_title      = wujin_sushi_get_theme_option('about_title');
+$wujin_sushi_about_text       = wujin_sushi_get_theme_option('about_text');
+$wujin_sushi_address          = wujin_sushi_get_theme_option('address', '15 Bd du Temple, 75003 Paris');
+$wujin_sushi_phone            = wujin_sushi_get_theme_option('phone', '09 54 97 63 96');
+$wujin_sushi_email            = wujin_sushi_get_theme_option('email', 'bonjour@wujinsushi.fr');
+$wujin_sushi_order_url        = wujin_sushi_get_theme_option('order_url', home_url('/#menu'));
+$wujin_sushi_reservation_url  = wujin_sushi_get_theme_option('reservation_url', home_url('/#contact'));
+$wujin_sushi_instagram_url    = wujin_sushi_get_theme_option('instagram_url');
+$wujin_sushi_social_links     = wujin_sushi_get_social_links();
+$wujin_sushi_hero_image_id    = wujin_sushi_get_theme_image_id('hero_image');
+$wujin_sushi_about_image_id   = wujin_sushi_get_theme_image_id('about_image');
 $wujin_sushi_gallery_image_ids = wujin_sushi_get_gallery_image_ids();
-$wujin_sushi_front_page_id     = get_queried_object_id();
+$wujin_sushi_front_page_id    = get_queried_object_id();
 $wujin_sushi_front_page_markup = '';
-$wujin_sushi_menu_terms        = get_terms(
-    array(
-        'taxonomy'   => 'menu_category',
-        'hide_empty' => false,
-        'number'     => 8,
-    )
-);
 
 if ($wujin_sushi_front_page_id) {
     $wujin_sushi_front_page_markup = trim((string) apply_filters('the_content', get_post_field('post_content', $wujin_sushi_front_page_id)));
 }
 
-$wujin_sushi_featured_menu_items = new WP_Query(
+$wujin_sushi_menu_terms = get_terms(
+    array(
+        'taxonomy'   => 'menu_category',
+        'hide_empty' => false,
+        'orderby'    => 'term_id',
+        'order'      => 'ASC',
+    )
+);
+
+$wujin_sushi_featured_posts = get_posts(
     array(
         'post_type'      => 'menu_item',
         'posts_per_page' => 6,
@@ -49,8 +52,8 @@ $wujin_sushi_featured_menu_items = new WP_Query(
     )
 );
 
-if (! $wujin_sushi_featured_menu_items->have_posts()) {
-    $wujin_sushi_featured_menu_items = new WP_Query(
+if (empty($wujin_sushi_featured_posts)) {
+    $wujin_sushi_featured_posts = get_posts(
         array(
             'post_type'      => 'menu_item',
             'posts_per_page' => 6,
@@ -63,189 +66,301 @@ if (! $wujin_sushi_featured_menu_items->have_posts()) {
     );
 }
 
-$wujin_sushi_latest_posts = new WP_Query(
+$wujin_sushi_all_menu_posts = get_posts(
     array(
-        'post_type'      => 'post',
-        'posts_per_page' => 3,
+        'post_type'      => 'menu_item',
+        'posts_per_page' => -1,
         'post_status'    => 'publish',
+        'orderby'        => array(
+            'menu_order' => 'ASC',
+            'date'       => 'DESC',
+        ),
     )
 );
+
+$wujin_sushi_menu_items_by_term = array();
+$wujin_sushi_menu_term_thumbs   = array();
+$wujin_sushi_featured_thumb     = '';
+$wujin_sushi_promo_image_id     = 0;
+$wujin_sushi_nav_sections       = array();
+
+if ($wujin_sushi_hero_image_id) {
+    $wujin_sushi_promo_image_id = $wujin_sushi_hero_image_id;
+} elseif ($wujin_sushi_about_image_id) {
+    $wujin_sushi_promo_image_id = $wujin_sushi_about_image_id;
+} elseif (! empty($wujin_sushi_gallery_image_ids)) {
+    $wujin_sushi_promo_image_id = (int) $wujin_sushi_gallery_image_ids[0];
+}
+
+foreach ($wujin_sushi_featured_posts as $wujin_sushi_featured_post) {
+    $wujin_sushi_featured_thumb = get_the_post_thumbnail_url($wujin_sushi_featured_post, 'thumbnail');
+
+    if ($wujin_sushi_featured_thumb) {
+        break;
+    }
+}
+
+if (! is_wp_error($wujin_sushi_menu_terms) && ! empty($wujin_sushi_menu_terms)) {
+    foreach ($wujin_sushi_menu_terms as $wujin_sushi_term) {
+        $wujin_sushi_menu_items_by_term[$wujin_sushi_term->term_id] = array();
+    }
+}
+
+foreach ($wujin_sushi_all_menu_posts as $wujin_sushi_menu_post) {
+    $wujin_sushi_terms_for_post = get_the_terms($wujin_sushi_menu_post, 'menu_category');
+
+    if (is_wp_error($wujin_sushi_terms_for_post) || empty($wujin_sushi_terms_for_post)) {
+        continue;
+    }
+
+    foreach ($wujin_sushi_terms_for_post as $wujin_sushi_term) {
+        if (! isset($wujin_sushi_menu_items_by_term[$wujin_sushi_term->term_id])) {
+            $wujin_sushi_menu_items_by_term[$wujin_sushi_term->term_id] = array();
+        }
+
+        $wujin_sushi_menu_items_by_term[$wujin_sushi_term->term_id][] = $wujin_sushi_menu_post;
+
+        if (empty($wujin_sushi_menu_term_thumbs[$wujin_sushi_term->term_id])) {
+            $wujin_sushi_thumb = get_the_post_thumbnail_url($wujin_sushi_menu_post, 'thumbnail');
+
+            if ($wujin_sushi_thumb) {
+                $wujin_sushi_menu_term_thumbs[$wujin_sushi_term->term_id] = $wujin_sushi_thumb;
+            }
+        }
+    }
+}
+
+$wujin_sushi_nav_sections[] = array(
+    'id'    => 'category-featured',
+    'label' => esc_html__('Consultes par nos chefs', 'wujin-sushi'),
+    'thumb' => $wujin_sushi_featured_thumb,
+);
+
+if (! is_wp_error($wujin_sushi_menu_terms) && ! empty($wujin_sushi_menu_terms)) {
+    foreach ($wujin_sushi_menu_terms as $wujin_sushi_term) {
+        if (sanitize_title($wujin_sushi_term->name) === 'consultes-par-nos-chefs') {
+            continue;
+        }
+
+        $wujin_sushi_nav_sections[] = array(
+            'id'    => 'category-' . $wujin_sushi_term->slug,
+            'label' => $wujin_sushi_term->name,
+            'thumb' => isset($wujin_sushi_menu_term_thumbs[$wujin_sushi_term->term_id]) ? $wujin_sushi_menu_term_thumbs[$wujin_sushi_term->term_id] : '',
+            'term'  => $wujin_sushi_term,
+        );
+    }
+}
+
+$wujin_sushi_render_product_card = static function ($wujin_sushi_menu_post) {
+    $wujin_sushi_post_id  = $wujin_sushi_menu_post instanceof WP_Post ? $wujin_sushi_menu_post->ID : (int) $wujin_sushi_menu_post;
+    $wujin_sushi_title    = get_the_title($wujin_sushi_post_id);
+    $wujin_sushi_url      = get_permalink($wujin_sushi_post_id);
+    $wujin_sushi_price    = wujin_sushi_get_menu_item_price($wujin_sushi_post_id);
+    $wujin_sushi_badge    = wujin_sushi_get_menu_item_badge($wujin_sushi_post_id);
+    $wujin_sushi_featured = wujin_sushi_is_menu_item_featured($wujin_sushi_post_id);
+    $wujin_sushi_excerpt  = (string) get_the_excerpt($wujin_sushi_post_id);
+
+    if ($wujin_sushi_excerpt === '') {
+        $wujin_sushi_excerpt = wp_strip_all_tags((string) get_post_field('post_content', $wujin_sushi_post_id));
+    }
+
+    $wujin_sushi_summary   = trim(wp_trim_words(wp_strip_all_tags($wujin_sushi_excerpt), 18));
+    $wujin_sushi_thumbnail = get_the_post_thumbnail($wujin_sushi_post_id, 'wujin-sushi-menu-card', array('class' => 'w-100'));
+    ?>
+    <div class="product_item_container">
+        <article class="product_item">
+            <a class="product_image image-anchor" href="<?php echo esc_url($wujin_sushi_url); ?>">
+                <?php if ($wujin_sushi_thumbnail) : ?>
+                    <?php echo $wujin_sushi_thumbnail; ?>
+                <?php else : ?>
+                    <span class="product_image_placeholder font-title"><?php echo esc_html($wujin_sushi_title); ?></span>
+                <?php endif; ?>
+
+                <?php if ($wujin_sushi_featured) : ?>
+                    <div class="meilleur_vente"><?php esc_html_e('Populaire', 'wujin-sushi'); ?></div>
+                <?php endif; ?>
+
+                <?php if ($wujin_sushi_badge) : ?>
+                    <div class="top_text">
+                        <span><?php echo esc_html($wujin_sushi_badge); ?></span>
+                    </div>
+                <?php endif; ?>
+            </a>
+
+            <div class="product_info">
+                <div class="product_name"><?php echo esc_html($wujin_sushi_title); ?></div>
+
+                <?php if ($wujin_sushi_price) : ?>
+                    <div class="product_price">
+                        <div class="price"><?php echo esc_html($wujin_sushi_price); ?></div>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($wujin_sushi_summary) : ?>
+                    <p class="product_summary"><?php echo esc_html($wujin_sushi_summary); ?></p>
+                <?php endif; ?>
+
+                <a class="product_more" href="<?php echo esc_url($wujin_sushi_url); ?>"><?php esc_html_e('Apercu rapide', 'wujin-sushi'); ?></a>
+
+                <div class="product_btn">
+                    <a class="button icon-button productAddBtn" href="<?php echo esc_url($wujin_sushi_url); ?>" aria-label="<?php echo esc_attr(sprintf(__('Voir %s', 'wujin-sushi'), $wujin_sushi_title)); ?>">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+                            <path d="M27.0537 16.1064H1.92672C1.13321 16.1064 0.490234 15.4634 0.490234 14.6699C0.490234 13.8764 1.13321 13.2334 1.92672 13.2334H27.0537C27.8473 13.2334 28.4902 13.8764 28.4902 14.6699C28.4902 15.4634 27.8473 16.1064 27.0537 16.1064ZM14.4902 28.6699C13.6967 28.6699 13.0537 28.0269 13.0537 27.2334V2.10641C13.0537 1.3129 13.6967 0.669922 14.4902 0.669922C15.2837 0.669922 15.9267 1.3129 15.9267 2.10641V27.2334C15.9267 28.0269 15.2837 28.6699 14.4902 28.6699Z" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </article>
+    </div>
+    <?php
+};
+
+$wujin_sushi_render_promo_card = static function () use ($wujin_sushi_promo_image_id, $wujin_sushi_instagram_url, $wujin_sushi_order_url) {
+    if (! $wujin_sushi_promo_image_id && ! $wujin_sushi_instagram_url) {
+        return;
+    }
+
+    $wujin_sushi_promo_href   = $wujin_sushi_instagram_url ?: $wujin_sushi_order_url;
+    $wujin_sushi_promo_target = $wujin_sushi_instagram_url ? ' target="_blank" rel="noopener noreferrer"' : '';
+    $wujin_sushi_promo_title  = $wujin_sushi_instagram_url ? __('Suivez nous', 'wujin-sushi') : __('Photos du restaurant', 'wujin-sushi');
+    $wujin_sushi_promo_copy   = $wujin_sushi_instagram_url ? __('Ajoutez votre compte Instagram dans le Customizer.', 'wujin-sushi') : __('Ajoutez vos propres photos depuis le Customizer.', 'wujin-sushi');
+    ?>
+    <div class="instagram_container">
+        <div class="instagram_inner">
+            <a id="header_instagram_button" href="<?php echo esc_url($wujin_sushi_promo_href); ?>"<?php echo $wujin_sushi_promo_target; ?>>
+                <?php if ($wujin_sushi_promo_image_id) : ?>
+                    <?php echo wp_get_attachment_image($wujin_sushi_promo_image_id, 'large', false, array('class' => 'promo-image')); ?>
+                <?php else : ?>
+                    <div class="promo-image promo-placeholder font-title"><?php esc_html_e('Wujin Sushi', 'wujin-sushi'); ?></div>
+                <?php endif; ?>
+
+                <div id="instagram_id">
+                    <div class="instagram_icon_container">
+                        <span class="font-title">IG</span>
+                    </div>
+
+                    <div class="instagram_text_container">
+                        <strong><?php echo esc_html($wujin_sushi_promo_title); ?></strong>
+                        <span><?php echo esc_html($wujin_sushi_promo_copy); ?></span>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+    <?php
+};
 ?>
 
 <main id="primary" class="site-main">
-    <div class="site-shell">
-        <section class="hero">
-            <div class="hero-content">
-                <p class="eyebrow"><?php esc_html_e('Restaurant japonais et tibetain', 'wujin-sushi'); ?></p>
-                <h1 class="hero-title"><?php echo esc_html($wujin_sushi_hero_heading); ?></h1>
+    <div class="site-shell home_container">
+        <section class="home_top">
+            <div class="home_top_info">
+                <h1 class="font-title"><?php echo esc_html($wujin_sushi_hero_heading); ?></h1>
 
                 <?php if ($wujin_sushi_hero_subheading) : ?>
-                    <p class="hero-subtitle"><?php echo esc_html($wujin_sushi_hero_subheading); ?></p>
+                    <h2 class="hero-subtitle"><?php echo esc_html($wujin_sushi_hero_subheading); ?></h2>
                 <?php endif; ?>
 
-                <?php if ($wujin_sushi_hero_description) : ?>
-                    <p class="hero-text"><?php echo esc_html($wujin_sushi_hero_description); ?></p>
-                <?php endif; ?>
+                <h2 class="hero-address"><?php echo esc_html($wujin_sushi_address); ?></h2>
 
-                <div class="hero-actions">
-                    <a class="button button-primary" href="<?php echo esc_url($wujin_sushi_order_url); ?>"><?php esc_html_e('Voir la carte', 'wujin-sushi'); ?></a>
-                    <a class="button button-secondary" href="<?php echo esc_url($wujin_sushi_reservation_url); ?>"><?php esc_html_e('Reserver une table', 'wujin-sushi'); ?></a>
+                <div class="web_info">
+                    <h2><a href="<?php echo esc_url('tel:' . wujin_sushi_get_phone_uri($wujin_sushi_phone)); ?>"><?php echo esc_html($wujin_sushi_phone); ?></a></h2>
+                    <a class="font-title underline" href="#about"><?php esc_html_e('Plus d informations', 'wujin-sushi'); ?></a>
                 </div>
-
-                <?php if ($wujin_sushi_announcement) : ?>
-                    <p class="hero-note"><?php echo esc_html($wujin_sushi_announcement); ?></p>
-                <?php endif; ?>
             </div>
 
-            <aside class="hero-panel" aria-label="<?php esc_attr_e('Restaurant information', 'wujin-sushi'); ?>">
-                <?php if ($wujin_sushi_hero_image_id) : ?>
-                    <a class="image-anchor hero-photo" href="<?php echo esc_url(wp_get_attachment_image_url($wujin_sushi_hero_image_id, 'full')); ?>">
-                        <?php echo wp_get_attachment_image($wujin_sushi_hero_image_id, 'large', false, array('class' => 'image-anchor-img')); ?>
-                    </a>
-                <?php endif; ?>
+            <div class="home_top_btn">
+                <div class="emporter_livraison_btn_container halfWidth">
+                    <div class="btn_container bubble_box_container emporter_btn_container">
+                        <a class="emporter_livraison_btn emporter_btn active animation" href="<?php echo esc_url($wujin_sushi_order_url); ?>">
+                            <span class="takeaway-icon" aria-hidden="true"></span>
+                            <?php esc_html_e('A Emporter', 'wujin-sushi'); ?>
+                        </a>
 
-                <div class="hero-panel-card">
-                    <h2><?php esc_html_e('Adresse', 'wujin-sushi'); ?></h2>
-                    <p><?php echo esc_html($wujin_sushi_address); ?></p>
+                        <div class="bubble_box">
+                            <div class="bubble_box_content"><?php esc_html_e('Je recupere ma commande !', 'wujin-sushi'); ?></div>
+                        </div>
+                    </div>
                 </div>
+            </div>
+        </section>
 
-                <div class="hero-panel-card">
-                    <h2><?php esc_html_e('Telephone', 'wujin-sushi'); ?></h2>
-                    <p><a href="<?php echo esc_url('tel:' . wujin_sushi_get_phone_uri($wujin_sushi_phone)); ?>"><?php echo esc_html($wujin_sushi_phone); ?></a></p>
-                </div>
+        <div class="home_main" id="menu">
+            <aside class="home_menu_container">
+                <nav aria-label="<?php esc_attr_e('Menu categories', 'wujin-sushi'); ?>">
+                    <?php foreach ($wujin_sushi_nav_sections as $wujin_sushi_section_index => $wujin_sushi_nav_section) : ?>
+                        <a class="home_menu_item menuCategory<?php echo 0 === $wujin_sushi_section_index ? ' active' : ''; ?>" href="#<?php echo esc_attr($wujin_sushi_nav_section['id']); ?>" data-category-link>
+                            <span class="menu-label"><?php echo esc_html($wujin_sushi_nav_section['label']); ?></span>
 
-                <div class="hero-panel-card">
-                    <h3><?php esc_html_e('Horaires', 'wujin-sushi'); ?></h3>
-                    <ul class="hero-panel-list">
-                        <?php foreach (wujin_sushi_get_opening_hours_lines() as $wujin_sushi_line) : ?>
-                            <li><?php echo esc_html($wujin_sushi_line); ?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                </div>
+                            <?php if (! empty($wujin_sushi_nav_section['thumb'])) : ?>
+                                <img class="menu-thumb" src="<?php echo esc_url($wujin_sushi_nav_section['thumb']); ?>" alt="">
+                            <?php endif; ?>
+                        </a>
+                    <?php endforeach; ?>
+                </nav>
             </aside>
-        </section>
 
-        <section class="section">
-            <div class="section-card">
-                <div class="info-grid">
-                    <div class="info-card">
-                        <h3><?php esc_html_e('Commande', 'wujin-sushi'); ?></h3>
-                        <p><?php esc_html_e('Redirigez ce bouton vers WooCommerce, Uber Eats, ou votre module de commande existant.', 'wujin-sushi'); ?></p>
-                    </div>
+            <div class="home_product_container">
+                <section id="category-featured" class="storefront-category" data-category-panel>
+                    <h1 class="storefront-category-heading font-title"><?php esc_html_e('Consultes par nos chefs', 'wujin-sushi'); ?></h1>
 
-                    <div class="info-card">
-                        <h3><?php esc_html_e('Reservations', 'wujin-sushi'); ?></h3>
-                        <p><?php esc_html_e('Branchez le lien de reservation vers un plugin WordPress ou une solution externe.', 'wujin-sushi'); ?></p>
-                    </div>
+                    <div class="product_container">
+                        <?php $wujin_sushi_render_promo_card(); ?>
 
-                    <div class="info-card">
-                        <h3><?php esc_html_e('Administration', 'wujin-sushi'); ?></h3>
-                        <p><?php esc_html_e('Le menu, les textes d accueil, les coordonnees, et les liens sont maintenant gerables depuis WordPress.', 'wujin-sushi'); ?></p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="section" id="menu">
-            <div class="section-card">
-                <div class="section-head">
-                    <div>
-                        <p class="eyebrow"><?php esc_html_e('La carte', 'wujin-sushi'); ?></p>
-                        <h2><?php esc_html_e('Categories de menu', 'wujin-sushi'); ?></h2>
-                        <p><?php esc_html_e('Ces categories sont modifiables depuis l administration WordPress via Menu Items > Menu Categories.', 'wujin-sushi'); ?></p>
-                    </div>
-                </div>
-
-                <div class="category-grid">
-                    <?php if (! is_wp_error($wujin_sushi_menu_terms) && ! empty($wujin_sushi_menu_terms)) : ?>
-                        <?php foreach ($wujin_sushi_menu_terms as $wujin_sushi_term) : ?>
-                            <a class="category-card" href="<?php echo esc_url(get_term_link($wujin_sushi_term)); ?>">
-                                <h3><?php echo esc_html($wujin_sushi_term->name); ?></h3>
-                                <span><?php echo esc_html(sprintf(_n('%s plat', '%s plats', (int) $wujin_sushi_term->count, 'wujin-sushi'), number_format_i18n((int) $wujin_sushi_term->count))); ?></span>
-                            </a>
-                        <?php endforeach; ?>
-                    <?php else : ?>
-                        <?php foreach (array_slice(wujin_sushi_default_menu_category_names(), 0, 8) as $wujin_sushi_category_name) : ?>
-                            <div class="category-card">
-                                <h3><?php echo esc_html($wujin_sushi_category_name); ?></h3>
-                                <span><?php esc_html_e('Ajoutez des plats pour remplir cette categorie.', 'wujin-sushi'); ?></span>
+                        <?php if (! empty($wujin_sushi_featured_posts)) : ?>
+                            <?php foreach ($wujin_sushi_featured_posts as $wujin_sushi_menu_post) : ?>
+                                <?php $wujin_sushi_render_product_card($wujin_sushi_menu_post); ?>
+                            <?php endforeach; ?>
+                        <?php else : ?>
+                            <div class="storefront-placeholder">
+                                <h3><?php esc_html_e('Ajoutez vos premiers plats', 'wujin-sushi'); ?></h3>
+                                <p><?php esc_html_e('Creez des Menu Items dans WordPress pour remplir cette page avec votre vraie carte.', 'wujin-sushi'); ?></p>
                             </div>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </section>
-
-        <section class="section">
-            <div class="section-card">
-                <div class="section-head">
-                    <div>
-                        <p class="eyebrow"><?php esc_html_e('Selection', 'wujin-sushi'); ?></p>
-                        <h2><?php esc_html_e('Plats en avant', 'wujin-sushi'); ?></h2>
-                        <p><?php esc_html_e('Ajoutez des Menu Items et cochez "Show this dish on the homepage" pour controler cette selection.', 'wujin-sushi'); ?></p>
+                        <?php endif; ?>
                     </div>
-                    <a class="button button-secondary" href="<?php echo esc_url(get_post_type_archive_link('menu_item') ?: home_url('/#menu')); ?>"><?php esc_html_e('Voir toute la carte', 'wujin-sushi'); ?></a>
-                </div>
+                </section>
 
-                <?php if ($wujin_sushi_featured_menu_items->have_posts()) : ?>
-                    <div class="menu-grid">
+                <?php if (! is_wp_error($wujin_sushi_menu_terms) && ! empty($wujin_sushi_menu_terms)) : ?>
+                    <?php foreach ($wujin_sushi_menu_terms as $wujin_sushi_term) : ?>
                         <?php
-                        while ($wujin_sushi_featured_menu_items->have_posts()) :
-                            $wujin_sushi_featured_menu_items->the_post();
-                            $wujin_sushi_terms = wujin_sushi_get_menu_terms();
-                            ?>
-                            <article id="post-<?php the_ID(); ?>" <?php post_class('menu-card'); ?>>
-                                <a class="menu-card-image" href="<?php the_permalink(); ?>">
-                                    <?php if (has_post_thumbnail()) : ?>
-                                        <?php the_post_thumbnail('wujin-sushi-menu-card'); ?>
-                                    <?php endif; ?>
-                                </a>
+                        if (sanitize_title($wujin_sushi_term->name) === 'consultes-par-nos-chefs') {
+                            continue;
+                        }
 
-                                <div class="menu-card-body">
-                                    <div class="menu-card-top">
-                                        <?php if (wujin_sushi_get_menu_item_badge()) : ?>
-                                            <span class="menu-badge"><?php echo esc_html(wujin_sushi_get_menu_item_badge()); ?></span>
-                                        <?php endif; ?>
-                                        <?php if (wujin_sushi_get_menu_item_price()) : ?>
-                                            <span class="menu-price"><?php echo esc_html(wujin_sushi_get_menu_item_price()); ?></span>
-                                        <?php endif; ?>
+                        $wujin_sushi_term_items = isset($wujin_sushi_menu_items_by_term[$wujin_sushi_term->term_id]) ? $wujin_sushi_menu_items_by_term[$wujin_sushi_term->term_id] : array();
+                        ?>
+                        <section id="category-<?php echo esc_attr($wujin_sushi_term->slug); ?>" class="storefront-category" data-category-panel>
+                            <h2 class="storefront-category-heading font-title"><?php echo esc_html($wujin_sushi_term->name); ?></h2>
+
+                            <div class="product_container">
+                                <?php if (! empty($wujin_sushi_term_items)) : ?>
+                                    <?php foreach ($wujin_sushi_term_items as $wujin_sushi_menu_post) : ?>
+                                        <?php $wujin_sushi_render_product_card($wujin_sushi_menu_post); ?>
+                                    <?php endforeach; ?>
+                                <?php else : ?>
+                                    <div class="storefront-placeholder">
+                                        <h3><?php esc_html_e('Categorie prete', 'wujin-sushi'); ?></h3>
+                                        <p><?php esc_html_e('Ajoutez des plats dans cette categorie depuis Menu Items pour la faire apparaitre ici.', 'wujin-sushi'); ?></p>
                                     </div>
-
-                                    <h3><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
-                                    <p><?php echo esc_html(get_the_excerpt() ?: wp_trim_words(wp_strip_all_tags(get_the_content()), 24)); ?></p>
-
-                                    <?php if (! empty($wujin_sushi_terms)) : ?>
-                                        <ul class="term-list">
-                                            <?php foreach ($wujin_sushi_terms as $wujin_sushi_term) : ?>
-                                                <li><a href="<?php echo esc_url(get_term_link($wujin_sushi_term)); ?>"><?php echo esc_html($wujin_sushi_term->name); ?></a></li>
-                                            <?php endforeach; ?>
-                                        </ul>
-                                    <?php endif; ?>
-                                </div>
-                            </article>
-                        <?php endwhile; ?>
-                    </div>
-                    <?php wp_reset_postdata(); ?>
-                <?php else : ?>
-                    <div class="empty-state">
-                        <h3><?php esc_html_e('Your homepage menu is ready for real content.', 'wujin-sushi'); ?></h3>
-                        <p><?php esc_html_e('Add dishes in Menu Items, assign categories, prices, and featured dishes, and this section will update automatically.', 'wujin-sushi'); ?></p>
-                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </section>
+                    <?php endforeach; ?>
                 <?php endif; ?>
             </div>
-        </section>
+        </div>
 
-        <section class="section" id="about">
+        <section class="section storefront-support" id="about">
             <div class="section-card">
-                <div class="section-head">
-                    <div>
+                <div class="storefront-support-grid">
+                    <div class="storefront-story">
                         <p class="eyebrow"><?php esc_html_e('A propos', 'wujin-sushi'); ?></p>
                         <h2><?php echo esc_html($wujin_sushi_about_title); ?></h2>
-                    </div>
-                </div>
 
-                <div class="about-grid">
-                    <div class="content-area">
+                        <?php if ($wujin_sushi_hero_description) : ?>
+                            <p class="storefront-lead"><?php echo esc_html($wujin_sushi_hero_description); ?></p>
+                        <?php endif; ?>
+
                         <p><?php echo esc_html($wujin_sushi_about_text); ?></p>
 
                         <?php if ($wujin_sushi_front_page_markup) : ?>
@@ -253,88 +368,55 @@ $wujin_sushi_latest_posts = new WP_Query(
                                 <?php echo wp_kses_post($wujin_sushi_front_page_markup); ?>
                             </div>
                         <?php endif; ?>
+
+                        <?php if (! empty($wujin_sushi_gallery_image_ids)) : ?>
+                            <div class="gallery-grid compact-gallery" id="gallery">
+                                <?php foreach ($wujin_sushi_gallery_image_ids as $wujin_sushi_gallery_image_id) : ?>
+                                    <a class="gallery-card image-anchor" href="<?php echo esc_url(wp_get_attachment_image_url($wujin_sushi_gallery_image_id, 'full')); ?>">
+                                        <?php echo wp_get_attachment_image($wujin_sushi_gallery_image_id, 'large', false, array('class' => 'image-anchor-img')); ?>
+                                    </a>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
                     </div>
 
-                    <aside class="sidebar">
-                        <?php if ($wujin_sushi_about_image_id) : ?>
-                            <a class="image-anchor about-photo" href="<?php echo esc_url(wp_get_attachment_image_url($wujin_sushi_about_image_id, 'full')); ?>">
-                                <?php echo wp_get_attachment_image($wujin_sushi_about_image_id, 'large', false, array('class' => 'image-anchor-img')); ?>
-                            </a>
-                        <?php endif; ?>
+                    <aside class="storefront-contact-stack" id="contact">
+                        <div class="hero-panel-card">
+                            <h3><?php esc_html_e('Adresse', 'wujin-sushi'); ?></h3>
+                            <p><?php echo esc_html($wujin_sushi_address); ?></p>
+                        </div>
 
-                        <div class="widget">
-                            <h3 class="widget-title"><?php esc_html_e('Coordonnees', 'wujin-sushi'); ?></h3>
-                            <ul class="footer-list">
-                                <li><?php echo esc_html($wujin_sushi_address); ?></li>
-                                <li><a href="<?php echo esc_url('tel:' . wujin_sushi_get_phone_uri($wujin_sushi_phone)); ?>"><?php echo esc_html($wujin_sushi_phone); ?></a></li>
-                                <li><a href="<?php echo esc_url('mailto:' . antispambot($wujin_sushi_email)); ?>"><?php echo esc_html(antispambot($wujin_sushi_email)); ?></a></li>
+                        <div class="hero-panel-card">
+                            <h3><?php esc_html_e('Telephone', 'wujin-sushi'); ?></h3>
+                            <p><a href="<?php echo esc_url('tel:' . wujin_sushi_get_phone_uri($wujin_sushi_phone)); ?>"><?php echo esc_html($wujin_sushi_phone); ?></a></p>
+                            <p><a href="<?php echo esc_url('mailto:' . antispambot($wujin_sushi_email)); ?>"><?php echo esc_html(antispambot($wujin_sushi_email)); ?></a></p>
+                        </div>
+
+                        <div class="hero-panel-card">
+                            <h3><?php esc_html_e('Horaires', 'wujin-sushi'); ?></h3>
+                            <ul class="hero-panel-list">
+                                <?php foreach (wujin_sushi_get_opening_hours_lines() as $wujin_sushi_line) : ?>
+                                    <li><?php echo esc_html($wujin_sushi_line); ?></li>
+                                <?php endforeach; ?>
                             </ul>
                         </div>
+
+                        <div class="storefront-link-row">
+                            <a class="button button-primary" href="<?php echo esc_url($wujin_sushi_order_url); ?>"><?php esc_html_e('Commander', 'wujin-sushi'); ?></a>
+                            <a class="button button-secondary" href="<?php echo esc_url($wujin_sushi_reservation_url); ?>"><?php esc_html_e('Reservation', 'wujin-sushi'); ?></a>
+                        </div>
+
+                        <?php if (! empty($wujin_sushi_social_links)) : ?>
+                            <div class="footer-socials storefront-socials">
+                                <?php foreach ($wujin_sushi_social_links as $wujin_sushi_network => $wujin_sushi_url) : ?>
+                                    <a href="<?php echo esc_url($wujin_sushi_url); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html($wujin_sushi_network); ?></a>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
                     </aside>
                 </div>
             </div>
         </section>
-
-        <?php if (! empty($wujin_sushi_gallery_image_ids)) : ?>
-            <section class="section" id="gallery">
-                <div class="section-card">
-                    <div class="section-head">
-                        <div>
-                            <p class="eyebrow"><?php esc_html_e('Photos', 'wujin-sushi'); ?></p>
-                            <h2><?php esc_html_e('Galerie du restaurant', 'wujin-sushi'); ?></h2>
-                            <p><?php esc_html_e('Ces images sont des emplacements administrables depuis Appearance > Customize > Restaurant Settings.', 'wujin-sushi'); ?></p>
-                        </div>
-                    </div>
-
-                    <div class="gallery-grid">
-                        <?php foreach ($wujin_sushi_gallery_image_ids as $wujin_sushi_gallery_image_id) : ?>
-                            <?php $wujin_sushi_gallery_caption = wp_get_attachment_caption($wujin_sushi_gallery_image_id); ?>
-                            <a class="gallery-card image-anchor" href="<?php echo esc_url(wp_get_attachment_image_url($wujin_sushi_gallery_image_id, 'full')); ?>">
-                                <?php echo wp_get_attachment_image($wujin_sushi_gallery_image_id, 'large', false, array('class' => 'image-anchor-img')); ?>
-                                <?php if ($wujin_sushi_gallery_caption) : ?>
-                                    <span class="gallery-caption"><?php echo esc_html($wujin_sushi_gallery_caption); ?></span>
-                                <?php endif; ?>
-                            </a>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-            </section>
-        <?php endif; ?>
-
-        <?php if ($wujin_sushi_latest_posts->have_posts()) : ?>
-            <section class="section" id="news">
-                <div class="section-card">
-                    <div class="section-head">
-                        <div>
-                            <p class="eyebrow"><?php esc_html_e('Actualites', 'wujin-sushi'); ?></p>
-                            <h2><?php esc_html_e('Dernieres nouvelles', 'wujin-sushi'); ?></h2>
-                        </div>
-                    </div>
-
-                    <div class="post-grid">
-                        <?php
-                        while ($wujin_sushi_latest_posts->have_posts()) :
-                            $wujin_sushi_latest_posts->the_post();
-                            ?>
-                            <article id="post-<?php the_ID(); ?>" <?php post_class('card-post'); ?>>
-                                <?php if (has_post_thumbnail()) : ?>
-                                    <a class="card-media" href="<?php the_permalink(); ?>">
-                                        <?php the_post_thumbnail('large'); ?>
-                                    </a>
-                                <?php endif; ?>
-
-                                <div class="card-content">
-                                    <p class="card-meta"><?php echo esc_html(get_the_date()); ?></p>
-                                    <h3 class="card-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
-                                    <p><?php echo esc_html(get_the_excerpt() ?: wp_trim_words(wp_strip_all_tags(get_the_content()), 22)); ?></p>
-                                </div>
-                            </article>
-                        <?php endwhile; ?>
-                    </div>
-                    <?php wp_reset_postdata(); ?>
-                </div>
-            </section>
-        <?php endif; ?>
     </div>
 </main>
 

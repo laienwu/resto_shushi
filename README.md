@@ -17,6 +17,8 @@ This repository now contains a usable WordPress theme plus a local Docker setup 
 
 phpMyAdmin is available at `http://localhost:8089`
 
+If WordPress shows `Error establishing a database connection` during the first startup, wait until MariaDB finishes initialization and refresh the page. You can check the containers with `docker compose ps`; the `db` service should show as healthy.
+
 ## What is editable from WordPress
 
 - Homepage hero text, contact details, hours, CTA links: `Appearance > Customize > Restaurant Settings`

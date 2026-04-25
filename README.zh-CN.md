@@ -17,6 +17,8 @@
 
 phpMyAdmin 可通过 `http://localhost:8089` 访问。
 
+如果首次启动时 WordPress 显示 `Error establishing a database connection`，通常是 MariaDB 还在初始化。等待数据库完成启动后刷新页面即可。你也可以运行 `docker compose ps` 检查容器状态，`db` 服务应该显示为 healthy。
+
 ## 可在 WordPress 后台编辑的内容
 
 - 首页主视觉文字、联系方式、营业时间、按钮链接：`Appearance > Customize > Restaurant Settings`

@@ -35,6 +35,20 @@ function wujin_sushi_default_menu_category_names() {
         'Yakitori',
         'Nos Sushi',
         'Saumon Roll',
+        'California Roll',
+        'Spicy Roll',
+        'Sashimi',
+        'Crispy Roll',
+        'Printemps Roll',
+        'Masago Roll',
+        'Temaki',
+        'Desserts',
+        'Les Bieres',
+        'Boisson',
+        'Vins Rouge',
+        'Vins Rose',
+        'Vins Blanc',
+        'Champagne',
     );
 }
 
@@ -145,7 +159,7 @@ add_action('widgets_init', 'wujin_sushi_widgets_init');
 function wujin_sushi_scripts() {
     wp_enqueue_style(
         'wujin-sushi-fonts',
-        'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap',
+        'https://fonts.googleapis.com/css2?family=Potta+One&family=Fira+Code:wght@300;400;600;700&display=swap',
         array(),
         null
     );
